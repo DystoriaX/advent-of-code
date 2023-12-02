@@ -22,6 +22,7 @@ def load_input(day: int):
         print("Requires COOKIE environment variable")
         exit(1)
 
+    os.makedirs(os.path.dirname(inpath), exist_ok=True)
     with open(inpath, "w") as f:
         with requests.Session() as session:
             response = session.get(url, cookies={'session': cookie})
@@ -33,13 +34,16 @@ def run_prog(day: int, part: int):
     srcpath = os.path.join(dirpath, filename + ".hs")
     outpath = os.path.join(dirpath, filename + ".elf")
 
-    inpath = os.path.relpath(f"input/day{day:02d}/input.in")
-
     subprocess.run(["ghc", srcpath, "-o", outpath])
 
-    with open(inpath, "r") as f:
-        print("Input result:")
-        subprocess.run([outpath], stdin=f)
+    indir = os.path.relpath(f"input/day{day:02d}/")
+
+    for file in os.listdir(indir):
+        inpath = os.path.relpath(f"input/day{day:02d}/{file}")
+
+        with open(inpath, "r") as f:
+            print(f"{inpath}:")
+            subprocess.run([outpath], stdin=f)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("AOC 2023 Driver")
